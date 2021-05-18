@@ -1,0 +1,75 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+  then
+    echo "No argument supplied. 
+    
+    Usage: create-ansible-project <project_root_directory_name>
+    
+    project_root_directory_name     It will be the project name.
+    
+    "
+    exit 1
+fi
+
+#  Create directories
+mkdir -p "$1/inventories/production/group_vars"
+mkdir -p "$1/inventories/production/host_vars"
+mkdir -p "$1/library"
+mkdir -p "$1/module_utils"
+mkdir -p "$1/playbooks"
+mkdir -p "$1/roles"
+
+#  Create hosts file
+echo "localhost" > "$1/inventories/production/hosts"
+
+#  Create example group vars file
+echo "---
+#  Variables for all hosts" > "$1/inventories/production/group_vars/all.yml"
+
+#  Create example host vars file
+echo "---
+#  Variables for host 'hostname'" > "$1/inventories/production/host_vars/hostname.yml"
+
+#  Create example playbook
+echo "---
+- name: my first playbook
+  hosts: localhost
+  tasks:
+    - name: ping
+      ping:
+" > "$1/playbooks/playbook.yml"
+
+#  Create default ansible config file
+echo "[default]
+roles_path          = ./roles" > "$1/ansible.cfg"
+
+#  Create example ansible-requirements file
+echo "#  Add galaxy dependencies here" > "$1/ansible-requirements.yml"
+
+#  Create example Python virtual environment file
+echo "ansible==2.10.4" > "$1/python-requirements.txt"
+
+#  Create .gitignore
+echo "#  Add gitignore rules
+#  Ignore virtual environment
+$1-venv" > "$1/.gitignore"
+
+#  Create README files
+echo "# $1 Ansible project" > "$1/README.md"
+echo "# $1 inventories" > "$1/inventories/README.md"
+echo "# $1 production inventory" > "$1/inventories/production/README.md"
+echo "# $1 production inventory group variables" > "$1/inventories/production/group_vars/README.md"
+echo "# $1 production inventory host variables" > "$1/inventories/production/host_vars/README.md"
+echo "# $1 project based custom modules" > "$1/library/README.md"
+echo "# $1 project based custom module's utils" > "$1/module_utils/README.md"
+echo "# $1 project playbooks" > "$1/playbooks/README.md"
+echo "# $1 project roles" > "$1/roles/README.md"
+
+#  Create Python virtual environment
+python3 -m venv "$1/$1-venv"
+
+# Create git repo
+cd "$1"
+git init
+git add .
