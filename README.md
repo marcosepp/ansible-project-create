@@ -59,26 +59,25 @@ Clone this repository:
 
 ```sh
 $ git clone https://github.com/marcosepp/ansible-project-create.git
-$ cd ansible-project-create
 ```
 
 Add execution permissions for script:
 
 ```sh
-$ chmod u+x create-ansible-project
+$ chmod u+x ansible-project-create/create-ansible-project
 ```
 
 Run `create-ansible-project` script. Replace `<your-project-name>` with your project name.
 
 ```sh
-$ ./create-ansible-project <your-project-name>
+$ ./ansible-project-create/create-ansible-project <your-project-name>
 ```
 
-# Install dependencies
+# (Optional) Install Python dependencies
 
-To use Python virtual environement for local testing, install Python requirements.
+Python virtual environment is used for local testing. All Python modules has to be described in `python-requirements.txt` file. 
 
-In the created project directory run:
+Install Python modules by executing following commands in your project directory:
 
 ```sh
 $ source ./<your-project-name>-venv/bin/activate
