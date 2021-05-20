@@ -1,73 +1,184 @@
 #!/bin/bash
 
+OUT_DIR="$(pwd)"
+
+print_help() {
+  echo "
+  
+    Usage: create-ansible-project [OPTIONS] <project_root_directory_name>
+    
+    <project_root_directory_name>     It will be the project name.
+
+    OPTIONS:
+      -o, --openstack-init            Add OpenStack inventory
+      -g, --git-init                  Initialize git repository
+      -h, --help                      Show this help
+      -p, --python-init               Create Python venv
+      -a, --all                       Creates all. Same as using options ' -o -g -p '
+      -d, --dir                       Specify directory where project directory will be created
+      
+    "
+}
+
+create_directories() {
+  #  Create directories
+  mkdir -p "$OUT_DIR/$1/inventories/production/group_vars"
+  mkdir -p "$OUT_DIR/$1/inventories/production/host_vars"
+  mkdir -p "$OUT_DIR/$1/library"
+  mkdir -p "$OUT_DIR/$1/module_utils"
+  mkdir -p "$OUT_DIR/$1/roles"
+}
+
+create_default_files() {
+  #  Create hosts file
+  echo "localhost" > "$OUT_DIR/$1/inventories/production/hosts"
+
+  #  Create example group vars file
+  echo "---
+  #  Variables for all hosts" > "$OUT_DIR/$1/inventories/production/group_vars/all.yml"
+
+  #  Create example host vars file
+  echo "---
+  #  Variables for host 'hostname'" > "$OUT_DIR/$1/inventories/production/host_vars/hostname.yml"
+
+  #  Create example playbook
+  echo "---
+  - name: my first playbook
+    hosts: localhost
+    tasks:
+      - name: ping
+        ping:
+  " > "$OUT_DIR/$1/playbook.yml"
+
+  #  Create default ansible config file
+  echo "[default]
+  roles_path          = ./roles" > "$OUT_DIR/$1/ansible.cfg"
+
+  #  Create example ansible-requirements file
+  echo "#  Add galaxy dependencies here" > "$OUT_DIR/$1/ansible-requirements.yml"
+
+  #  Create example Python virtual environment file
+  echo "ansible==2.10.4" > "$OUT_DIR/$1/python-requirements.txt"
+
+  #  Create .gitignore
+  echo "#  Add gitignore rules
+  #  Ignore virtual environment
+  $1-venv" > "$OUT_DIR/$1/.gitignore"
+
+  #  Create README files
+  echo "# $1 Ansible project" > "$OUT_DIR/$1/README.md"
+  echo "# $1 inventories" > "$OUT_DIR/$1/inventories/README.md"
+  echo "# $1 production inventory
+  # Group variables are in yaml files under 'group_vars' directory
+  # Host variables are in yaml files under 'host_vars' directory
+  # Static hosts are added in 'hosts' file." > "$OUT_DIR/$1/inventories/production/README.md"
+  echo "# $1 production inventory group variables" > "$OUT_DIR/$1/inventories/production/group_vars/README.md"
+  echo "# $1 production inventory host variables" > "$OUT_DIR/$1/inventories/production/host_vars/README.md"
+  echo "# $1 project based custom modules" > "$OUT_DIR/$1/library/README.md"
+  echo "# $1 project based custom module's utils" > "$OUT_DIR/$1/module_utils/README.md"
+  echo "# $1 project roles" > "$OUT_DIR/$1/roles/README.md"
+}
+
+create_ansible_structure() {
+  create_directories "$1"
+  create_default_files "$1"
+}
+
+create_python_venv() {
+  #  Create Python virtual environment
+  cd "$OUT_DIR"
+  python3 -m venv "$1/$1-venv"
+  cd -
+}
+
+create_git_repo() {
+  # Create git repo
+  cd "$OUT_DIR/$1"
+  git init
+  git add .
+}
+
+create_openstack_inventory() {
+  wget -O "$OUT_DIR/$1/inventories/production/openstack_inventory.py" https://raw.githubusercontent.com/openstack/ansible-collections-openstack/master/scripts/inventory/openstack_inventory.py
+  chmod u+x "$OUT_DIR/$1/inventories/production/openstack_inventory.py"
+}
+
+
 if [ -z "$1" ]
   then
-    echo "No argument supplied. 
-    
-    Usage: create-ansible-project <project_root_directory_name>
-    
-    project_root_directory_name     It will be the project name.
-    
-    "
+    echo "No argument supplied."
+    print_help    
     exit 1
 fi
 
-#  Create directories
-mkdir -p "$1/inventories/production/group_vars"
-mkdir -p "$1/inventories/production/host_vars"
-mkdir -p "$1/library"
-mkdir -p "$1/module_utils"
-mkdir -p "$1/roles"
 
-#  Create hosts file
-echo "localhost" > "$1/inventories/production/hosts"
 
-#  Create example group vars file
-echo "---
-#  Variables for all hosts" > "$1/inventories/production/group_vars/all.yml"
+while :
+do
+  case "$1" in
+    -a|--all)
+      RUN_ALL=true
+      shift
+      ;;
+    -o|--openstack-init)
+      USE_OPENSTACK=true
+      shift
+      ;;
+    -d|--dir)
+      echo "$2"
+      echo "$OUT_DIR"
+      OUT_DIR="$2"
+      shift 2
+      ;;
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+    -g|--git-init)
+      USE_GIT_INIT=true
+      shift
+      ;;
+    -p|--python-init)
+      USE_PYTHON_INIT=true
+      shift
+      ;;
+    -*)
+      echo
+      echo "Error: Unknown option: $1" >&2
+      echo
+      print_help
+      exit 1
+      ;;
+    *)
+      PROJ_NAME="$1"
+      break
+      ;;
+  esac
+done
 
-#  Create example host vars file
-echo "---
-#  Variables for host 'hostname'" > "$1/inventories/production/host_vars/hostname.yml"
 
-#  Create example playbook
-echo "---
-- name: my first playbook
-  hosts: localhost
-  tasks:
-    - name: ping
-      ping:
-" > "$1/playbook.yml"
+if [ "$RUN_ALL" = true ]
+then
+  create_ansible_structure "$PROJ_NAME"
+  create_openstack_inventory "$PROJ_NAME"
+  create_python_venv "$PROJ_NAME"
+  create_git_repo "$PROJ_NAME"
+  exit 0
+else
+  create_ansible_structure "$PROJ_NAME"
 
-#  Create default ansible config file
-echo "[default]
-roles_path          = ./roles" > "$1/ansible.cfg"
+  if [ "$USE_OPENSTACK" = true ]
+  then
+    create_openstack_inventory "$PROJ_NAME"
+  fi
 
-#  Create example ansible-requirements file
-echo "#  Add galaxy dependencies here" > "$1/ansible-requirements.yml"
+  if [ "$USE_PYTHON_INIT" = true ]
+  then
+    create_python_venv "$PROJ_NAME"
+  fi
 
-#  Create example Python virtual environment file
-echo "ansible==2.10.4" > "$1/python-requirements.txt"
-
-#  Create .gitignore
-echo "#  Add gitignore rules
-#  Ignore virtual environment
-$1-venv" > "$1/.gitignore"
-
-#  Create README files
-echo "# $1 Ansible project" > "$1/README.md"
-echo "# $1 inventories" > "$1/inventories/README.md"
-echo "# $1 production inventory" > "$1/inventories/production/README.md"
-echo "# $1 production inventory group variables" > "$1/inventories/production/group_vars/README.md"
-echo "# $1 production inventory host variables" > "$1/inventories/production/host_vars/README.md"
-echo "# $1 project based custom modules" > "$1/library/README.md"
-echo "# $1 project based custom module's utils" > "$1/module_utils/README.md"
-echo "# $1 project roles" > "$1/roles/README.md"
-
-#  Create Python virtual environment
-python3 -m venv "$1/$1-venv"
-
-# Create git repo
-cd "$1"
-git init
-git add .
+  if [ "$USE_GIT_INIT" = true ]
+  then
+    create_git_repo "$PROJ_NAME"
+  fi
+fi

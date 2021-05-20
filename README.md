@@ -70,7 +70,25 @@ $ chmod u+x ansible-project-create/create-ansible-project
 Run `create-ansible-project` script. Replace `<your-project-name>` with your project name.
 
 ```sh
-$ ./ansible-project-create/create-ansible-project <your-project-name>
+$ ./create-ansible-project -a -d /tmp <your-project-name>
+```
+
+# Usage
+
+```sh
+$ ./create-ansible-project --help
+    
+    Usage: create-ansible-project [OPTIONS] <project_root_directory_name>
+    
+    <project_root_directory_name>     It will be the project name.
+
+    OPTIONS:
+      -o, --openstack-init            Add OpenStack inventory
+      -g, --git-init                  Initialize git repository
+      -h, --help                      Show this help
+      -p, --python-init               Create Python venv
+      -a, --all                       Creates all. Same as using options ' -o -g -p '
+      -d, --dir                       Specify directory where project directory will be created
 ```
 
 # (Optional) Install Python dependencies
