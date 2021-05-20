@@ -17,7 +17,6 @@ mkdir -p "$1/inventories/production/group_vars"
 mkdir -p "$1/inventories/production/host_vars"
 mkdir -p "$1/library"
 mkdir -p "$1/module_utils"
-mkdir -p "$1/playbooks"
 mkdir -p "$1/roles"
 
 #  Create hosts file
@@ -38,7 +37,7 @@ echo "---
   tasks:
     - name: ping
       ping:
-" > "$1/playbooks/playbook.yml"
+" > "$1/playbook.yml"
 
 #  Create default ansible config file
 echo "[default]
@@ -63,7 +62,6 @@ echo "# $1 production inventory group variables" > "$1/inventories/production/gr
 echo "# $1 production inventory host variables" > "$1/inventories/production/host_vars/README.md"
 echo "# $1 project based custom modules" > "$1/library/README.md"
 echo "# $1 project based custom module's utils" > "$1/module_utils/README.md"
-echo "# $1 project playbooks" > "$1/playbooks/README.md"
 echo "# $1 project roles" > "$1/roles/README.md"
 
 #  Create Python virtual environment

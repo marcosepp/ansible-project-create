@@ -9,6 +9,8 @@ Script will create Ansible project, initalize new local Git repository and creat
 * Linux distro in development computer
 * Python3
 * Pip3
+* Python3-venv
+* Git
 * Access to Pypi.org or any local Pypi server
 
 # Project structure
@@ -39,10 +41,8 @@ All directories contain a `README.md` file that describes the directory purpose.
     module_utils/                       #  if any custom module_utils to support modules, put them here (optional)
         README.md
     
-    playbooks/
-        playbook.yml                    #  Master playbook
-        README.md
-
+    playbook.yml                        #  Master playbook and all other playbooks are in project root directory
+    
     roles/
         README.md
 
