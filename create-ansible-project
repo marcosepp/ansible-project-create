@@ -67,7 +67,7 @@ create_default_files() {
 
   #  Create README files
   echo "# $1 Ansible project" > "$OUT_DIR/$1/README.md"
-  echo "# $1 inventories" > "$OUT_DIR/$1/inventories/README.md"
+  echo "# $1 inventories based on environment (Production, Test, etc)" > "$OUT_DIR/$1/inventories/README.md"
   echo "# $1 production inventory
   # Group variables are in yaml files under 'group_vars' directory
   # Host variables are in yaml files under 'host_vars' directory
