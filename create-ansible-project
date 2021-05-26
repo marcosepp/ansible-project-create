@@ -63,20 +63,27 @@ create_default_files() {
   #  Create .gitignore
   echo "#  Add gitignore rules
   #  Ignore virtual environment
-  $1-venv" > "$OUT_DIR/$1/.gitignore"
+  $1-venv
+  
+  #  Don't ignore README.md files
+  !**/README.md
+  
+  #  Ignore roles directory content
+  roles/*" > "$OUT_DIR/$1/.gitignore"
 
   #  Create README files
-  echo "# $1 Ansible project" > "$OUT_DIR/$1/README.md"
-  echo "# $1 inventories based on environment (Production, Test, etc)" > "$OUT_DIR/$1/inventories/README.md"
-  echo "# $1 production inventory
-  # Group variables are in yaml files under 'group_vars' directory
-  # Host variables are in yaml files under 'host_vars' directory
-  # Static hosts are added in 'hosts' file." > "$OUT_DIR/$1/inventories/production/README.md"
-  echo "# $1 production inventory group variables" > "$OUT_DIR/$1/inventories/production/group_vars/README.md"
-  echo "# $1 production inventory host variables" > "$OUT_DIR/$1/inventories/production/host_vars/README.md"
-  echo "# $1 project based custom modules" > "$OUT_DIR/$1/library/README.md"
-  echo "# $1 project based custom module's utils" > "$OUT_DIR/$1/module_utils/README.md"
-  echo "# $1 project roles" > "$OUT_DIR/$1/roles/README.md"
+  echo "#  $1 Ansible project" > "$OUT_DIR/$1/README.md"
+  echo "#  $1 inventories based on environment (Production, Test, etc)" > "$OUT_DIR/$1/inventories/README.md"
+  echo "#  $1 production inventory
+  #  Group variables are in yaml files under 'group_vars' directory
+  #  Host variables are in yaml files under 'host_vars' directory
+  #  Static hosts are added in 'hosts' file." > "$OUT_DIR/$1/inventories/production/README.md"
+  echo "#  $1 production inventory group variables" > "$OUT_DIR/$1/inventories/production/group_vars/README.md"
+  echo "#  $1 production inventory host variables" > "$OUT_DIR/$1/inventories/production/host_vars/README.md"
+  echo "#  $1 project based custom modules" > "$OUT_DIR/$1/library/README.md"
+  echo "#  $1 project based custom module's utils" > "$OUT_DIR/$1/module_utils/README.md"
+  echo "#  $1 project roles
+  #  Content of this directory is ignored in .gitignore to follow Ansible best practices." > "$OUT_DIR/$1/roles/README.md"
 }
 
 create_ansible_structure() {
