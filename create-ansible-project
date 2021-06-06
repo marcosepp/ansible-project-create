@@ -14,8 +14,9 @@ print_help() {
       -g, --git-init                  Initialize git repository
       -h, --help                      Show this help
       -p, --python-init               Create Python venv
-      -a, --all                       Creates all. Same as using options ' -o -g -p '
+      -a, --all                       Creates all. Same as using options ' -o -g -p -v'
       -d, --dir                       Specify directory where project directory will be created
+      -v, --vault                     Create Ansible vault secret. Needs '/dev/urandom', 'tr' and 'head'
       
     "
 }
@@ -30,86 +31,97 @@ create_directories() {
 }
 
 create_default_files() {
-  #  Create hosts file
-  echo "localhost" > "$OUT_DIR/$1/inventories/production/hosts"
+#  Create hosts file
+echo "localhost" > "$OUT_DIR/$1/inventories/production/hosts"
 
-  #  Create example group vars file
-  echo "---
-  #  Variables for all hosts" > "$OUT_DIR/$1/inventories/production/group_vars/all.yml"
+#  Create example group vars file
+echo "---
+#  Variables for all hosts" > "$OUT_DIR/$1/inventories/production/group_vars/all.yml"
 
-  #  Create example host vars file
-  echo "---
-  #  Variables for host 'hostname'" > "$OUT_DIR/$1/inventories/production/host_vars/hostname.yml"
+#  Create example host vars file
+echo "---
+#  Variables for host 'hostname'" > "$OUT_DIR/$1/inventories/production/host_vars/hostname.yml"
 
-  #  Create example playbook
-  echo "---
-  - name: my first playbook
-    hosts: localhost
-    tasks:
-      - name: ping
-        ping:
-  " > "$OUT_DIR/$1/playbook.yml"
+#  Create example playbook
+echo "---
+- name: my first playbook
+  hosts: localhost
+  tasks:
+    - name: ping
+      ping:
+" > "$OUT_DIR/$1/playbook.yml"
 
-  #  Create default ansible config file
-  echo "[default]
-  roles_path          = ./roles" > "$OUT_DIR/$1/ansible.cfg"
+#  Create default ansible config file
+echo "[default]
+roles_path          = ./roles" > "$OUT_DIR/$1/ansible.cfg"
 
-  #  Create example ansible-requirements file
-  echo "#  Add galaxy dependencies here" > "$OUT_DIR/$1/ansible-requirements.yml"
+#  Create example ansible-requirements file
+echo "#  Add galaxy dependencies here" > "$OUT_DIR/$1/ansible-requirements.yml"
 
-  #  Create example Python virtual environment file
-  echo "ansible==2.10.4" > "$OUT_DIR/$1/python-requirements.txt"
+#  Create example Python virtual environment file
+echo "ansible==2.10.4" > "$OUT_DIR/$1/python-requirements.txt"
 
-  #  Create .gitignore
-  echo "#  Add gitignore rules
-  #  Ignore virtual environment
-  $1-venv
-  
-  #  Don't ignore README.md files
-  !**/README.md
-  
-  #  Ignore roles directory content
-  roles/*" > "$OUT_DIR/$1/.gitignore"
+#  Create .gitignore
+echo "#  Add gitignore rules
+#  Ignore virtual environment
+$1-venv
 
-  #  Create README files
-  echo "#  $1 Ansible project" > "$OUT_DIR/$1/README.md"
-  echo "#  $1 inventories based on environment (Production, Test, etc)" > "$OUT_DIR/$1/inventories/README.md"
-  echo "#  $1 production inventory
-  #  Group variables are in yaml files under 'group_vars' directory
-  #  Host variables are in yaml files under 'host_vars' directory
-  #  Static hosts are added in 'hosts' file." > "$OUT_DIR/$1/inventories/production/README.md"
-  echo "#  $1 production inventory group variables" > "$OUT_DIR/$1/inventories/production/group_vars/README.md"
-  echo "#  $1 production inventory host variables" > "$OUT_DIR/$1/inventories/production/host_vars/README.md"
-  echo "#  $1 project based custom modules" > "$OUT_DIR/$1/library/README.md"
-  echo "#  $1 project based custom module's utils" > "$OUT_DIR/$1/module_utils/README.md"
-  echo "#  $1 project roles
-  #  Content of this directory is ignored in .gitignore to follow Ansible best practices." > "$OUT_DIR/$1/roles/README.md"
+#  Don't ignore README.md files
+!**/README.md
+
+#  Ignore roles directory content
+roles/*" > "$OUT_DIR/$1/.gitignore"
+
+
+
+#  Create README files
+echo "#  $1 Ansible project" > "$OUT_DIR/$1/README.md"
+echo "#  $1 inventories based on environment (Production, Test, etc)" > "$OUT_DIR/$1/inventories/README.md"
+echo "#  $1 production inventory
+#  Group variables are in yaml files under 'group_vars' directory
+#  Host variables are in yaml files under 'host_vars' directory
+#  Static hosts are added in 'hosts' file." > "$OUT_DIR/$1/inventories/production/README.md"
+echo "#  $1 production inventory group variables" > "$OUT_DIR/$1/inventories/production/group_vars/README.md"
+echo "#  $1 production inventory host variables" > "$OUT_DIR/$1/inventories/production/host_vars/README.md"
+echo "#  $1 project based custom modules" > "$OUT_DIR/$1/library/README.md"
+echo "#  $1 project based custom module's utils" > "$OUT_DIR/$1/module_utils/README.md"
+echo "#  $1 project roles
+#  Content of this directory is ignored in .gitignore to follow Ansible best practices." > "$OUT_DIR/$1/roles/README.md"
 }
 
 create_ansible_structure() {
-  create_directories "$1"
-  create_default_files "$1"
+create_directories "$1"
+create_default_files "$1"
 }
 
 create_python_venv() {
-  #  Create Python virtual environment
-  cd "$OUT_DIR"
-  python3 -m venv "$1/$1-venv"
-  cd -
+#  Create Python virtual environment
+cd "$OUT_DIR"
+python3 -m venv "$1/$1-venv"
+cd -
 }
 
 create_git_repo() {
-  # Create git repo
-  cd "$OUT_DIR/$1"
-  git init
-  git add .
+# Create git repo
+cd "$OUT_DIR/$1"
+git init
+git add .
 }
 
 create_openstack_inventory() {
-  wget -O "$OUT_DIR/$1/inventories/production/openstack_inventory.py" https://raw.githubusercontent.com/openstack/ansible-collections-openstack/master/scripts/inventory/openstack_inventory.py
-  chmod u+x "$OUT_DIR/$1/inventories/production/openstack_inventory.py"
+wget -O "$OUT_DIR/$1/inventories/production/openstack_inventory.py" https://raw.githubusercontent.com/openstack/ansible-collections-openstack/master/scripts/inventory/openstack_inventory.py
+chmod u+x "$OUT_DIR/$1/inventories/production/openstack_inventory.py"
 }
 
+create_ansible_vault() {
+#  Create Ansible vault file
+echo $(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-120}) > "$OUT_DIR/$1/ansible-vault"
+
+echo "
+
+#  Ignore secrets
+ansible-vault" >> "$OUT_DIR/$1/.gitignore"
+}
 
 if [ -z "$1" ]
   then
@@ -149,6 +161,10 @@ do
       USE_PYTHON_INIT=true
       shift
       ;;
+    -v|--vault)
+      USE_ANSIBLE_VAULT=true
+      shift
+      ;;
     -*)
       echo
       echo "Error: Unknown option: $1" >&2
@@ -170,6 +186,7 @@ then
   create_openstack_inventory "$PROJ_NAME"
   create_python_venv "$PROJ_NAME"
   create_git_repo "$PROJ_NAME"
+  create_ansible_vault "$PROJ_NAME"
   exit 0
 else
   create_ansible_structure "$PROJ_NAME"
@@ -187,5 +204,10 @@ else
   if [ "$USE_GIT_INIT" = true ]
   then
     create_git_repo "$PROJ_NAME"
+  fi
+
+  if [ "$USE_ANSIBLE_VAULT" = true ]
+  then
+    create_ansible_vault "$PROJ_NAME"
   fi
 fi

@@ -51,6 +51,7 @@ All directories contain a `README.md` file that describes the directory purpose.
     ansible.cfg                         #  Ansible config file for the project
     python-requirements.txt             #  Python requirements fot the project
     README.md
+    ansible-vault                       #  Ansible Vault secret file
 ```
 
 # How to use?
@@ -89,6 +90,7 @@ $ ./create-ansible-project --help
       -p, --python-init               Create Python venv
       -a, --all                       Creates all. Same as using options ' -o -g -p '
       -d, --dir                       Specify directory where project directory will be created
+      -v, --vault                     Create Ansible vault secret. Needs '/dev/urandom', 'tr' and 'head'
 ```
 
 # (Optional) Install Python dependencies
